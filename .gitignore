@@ -1,0 +1,1 @@
+node_modules/\nnpm-debug.log*\n.env\n.env.local\n.env.*.local\nfirebase-key.json\nserviceAccountKey.json\n/build\n/dist\n/.next\nout/\n.vscode/\n.idea/\n*.swp\n*.swo\n*~\n.DS_Store\ncoverage/\n.firebase/\n.firebaserc\n.yarn/cache\n.yarn/unplugged\n.yarn/build-state.yml\n.pnp.*\n
