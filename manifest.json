@@ -1,0 +1,24 @@
+{
+  "short_name": "KineticHangar",
+  "name": "Kinetic Hangar - Fuel & Biocide Control",
+  "description": "Calculadora de Missão Crítica e Governança de Dosagem de Biocida para Frota Embraer.",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/fluency/192/aeroplane.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://img.icons8.com/fluency/512/aeroplane.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#121416",
+  "theme_color": "#A3C9FF",
+  "display": "standalone",
+  "orientation": "portrait"
+}
