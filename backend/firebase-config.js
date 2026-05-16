@@ -1,4 +1,13 @@
-// Firebase configuration
+/**
+ * @file firebase-config.js
+ * @description Configuração e inicialização oficial do Firebase SDK (Padrão ESM).
+ */
+
+// 1. Importações dos módulos oficiais do Firebase via CDN (Dispensa instalação de pacotes)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// 2. Objeto de configuração (As chaves reais serão lidas do seu ambiente seguro)
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_AUTH_DOMAIN",
@@ -8,4 +17,9 @@ const firebaseConfig = {
     appId: "YOUR_APP_ID"
 };
 
-module.exports = firebaseConfig;
+// 3. Inicializa o Firebase e o Banco de Dados Firestore
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// 4. Exporta a instância do banco para ser usada pelo nosso AuditLogger
+export { db };
