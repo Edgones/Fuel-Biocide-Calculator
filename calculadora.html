@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinetic Hangar - Calculadora</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="./manifest.json">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+        /* Oculta setas padrão de inputs numéricos para manter o layout limpo */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body class="bg-[#121416] text-[#E3E2E6] min-h-screen p-4 md:p-8 flex flex-col items-center">
+
+    <div class="w-full max-w-2xl flex flex-col gap-6">
+        
+        <div class="flex justify-between items-center bg-[#1A1C1E] p-4 rounded-2xl">
+            <div class="flex flex-col">
+                <span class="text-[#A3C9FF] text-lg font-bold tracking-wider font-mono">CALCULADORA DE BIOCIDA</span>
+                <span id="inspector-display" class="text-xs text-[#74777F] font-mono">INSPETOR: --</span>
+            </div>
+            <div class="bg-[#24262A] p-1 rounded-xl flex gap-1 font-mono text-xs font-bold">
+                <button id="unit-kg" onclick="setUnit('KG')" class="px-4 py-2 rounded-lg bg-[#A3C9FF] text-[#00315E] transition-all cursor-pointer">KG</button>
+                <button id="unit-lb" onclick="setUnit('LB')" class="px-4 py-2 rounded-lg text-[#C4C6D0] transition-all cursor-pointer">LB</button>
+            </div>
+        </div>
+
+        <div class="bg-[#1A1C1E] p-6 rounded-3xl flex flex-col gap-5 shadow-xl">
+            
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-medium uppercase tracking-wider text-[#C4C6D0]">Aeronave (Designator ICAO)</label>
+                <select id="aircraft-selector" onchange="processCalculation()" class="bg-[#24262A] text-white p-4 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-[#A3C9FF] cursor-pointer">
+                    <optgroup label="Família Phenom (Pequeno)">
+                        <option value="E50P">Phenom 100 (EMB-500)</option>
+                        <option value="E55P" selected>Phenom 300 (EMB-505)</option>
+                    </optgroup>
+                    <optgroup label="Família ERJ-135 / ERJ-145">
+                        <option value="E135_ER">EMB-135ER</option>
+                        <option value="E135_LR">EMB-135LR</option>
+                        <option value="E145_LR">ERJ-145LR</option>
+                        <option value="E145_LU">ERJ-145LU</option>
+                    </optgroup>
+                    <optgroup label="Família Legacy / Praetor (Médios)">
+                        <option value="E545_L450">Legacy 450 (EMB-545)</option>
+                        <option value="E545_P500">Praetor 500 (EMB-545)</option>
+                        <option value="E550_L500">Legacy 500 (EMB-550)</option>
+                        <option value="E550_P600">Praetor 600 (EMB-550)</option>
+                    </optgroup>
+                    <optgroup label="Grandes Jatos Executivos (Séries Legacy)">
+                        <option value="E35L_LEGACY">Legacy (EMB-135BJ)</option>
+                        <option value="E35L_L600">Legacy 600 (EMB-135BJ)</option>
+                        <option value="E35L_L650">Legacy 650 (EMB-135BJ)</option>
+                        <option value="E190_LINEAGE">Lineage 1000 (ERJ-190 ECJ)</option>
+                    </optgroup>
+                    <optgroup label="E-Jets Comerciais">
+                        <option value="E190_100">ERJ-190-100</option>
+                        <option value="E195_200">ERJ-190-200 (E195)</option>
+                        <option value="E290_300">ERJ-190-300 (E190-E2)</option>
+                        <option value="E295_400">ERJ-190-400 (E195-E2)</option>
+                        <option value="E190_PR">Embraer 190PR</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium uppercase tracking-wider text-[#C4C6D0]">Densidade Atual (Kg/L)</label>
+                    <input type="number" id="density-input" step="0.001" min="0.775" max="0.840" oninput="processCalculation()"
+                           class="bg-[#24262A] text-white p-4 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-[#A3C9FF] font-mono">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium uppercase tracking-wider text-[#C4C6D0]">Dosagem (PPMV)</label>
+                    <select id="ppmv-selector" onchange="processCalculation()" class="bg-[#24262A] text-white p-4 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-[#A3C9FF] font-mono cursor-pointer">
+                        <option value="100" selected>100 PPMV (Standard)</option>
+                        <option value="200">200 PPMV (Choque)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium uppercase tracking-wider text-[#C4C6D0]">FOB Atual (Remanescente)</label>
+                    <input type="number" id="fob-current" placeholder="0" oninput="processCalculation()"
+                           class="bg-[#24262A] text-white p-4 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-[#A3C9FF] font-mono">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium uppercase tracking-wider text-[#C4C6D0]">FOB Requerido (Final)</label>
+                    <input type="number" id="fob-target" placeholder="0" oninput="processCalculation()"
+                           class="bg-[#24262A] text-white p-4 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-[#A3C9FF] font-mono">
+                </div>
+            </div>
+
+            <div class="bg-[#24262A] p-4 rounded-xl flex items-center justify-between">
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-xs font-semibold tracking-wide text-[#E3E2E6]">O Remanescente já está aditivado?</span>
+                    <span class="text-[11px] text-[#A4C6D0]">Define se a base será o Uplift ou o Volume Total</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="remanent-aditivated-toggle" onchange="processCalculation()" class="sr-only peer">
+                    <div class="w-11 h-6 bg-[#43474E] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#E3E2E6] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#A3C9FF]"></div>
+                </label>
+            </div>
+
+            <div id="ui-warning-box" class="p-4 rounded-xl text-sm hidden transition-all">
+                <span id="ui-warning-msg"></span>
+            </div>
+        </div>
+
+        <div class="bg-[#1A1C1E] p-6 rounded-3xl flex flex-col gap-4 shadow-xl">
+            <span class="text-xs font-medium uppercase tracking-wider text-[#74777F]">Resultado do Procedimento</span>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-[#24262A] p-5 rounded-2xl flex flex-col gap-1">
+                    <span class="text-xs text-[#C4C6D0]">Dosagem de Biocida</span>
+                    <div class="flex items-baseline gap-1 text-[#A3C9FF]">
+                        <span id="result-biocide" class="text-4xl font-bold font-mono">0</span>
+                        <span class="text-sm font-semibold font-mono">ml</span>
+                    </div>
+                </div>
+                <div class="bg-[#24262A] p-5 rounded-2xl flex flex-col gap-1">
+                    <span class="text-xs text-[#C4C6D0]">Combustível a Subir (Uplift)</span>
+                    <div class="flex items-baseline gap-1 text-[#E3E2E6]">
+                        <span id="result-uplift" class="text-3xl font-bold font-mono">0</span>
+                        <span id="result-uplift-unit" class="text-xs font-semibold font-mono">KG</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-[#24262A] p-4 rounded-2xl flex justify-between text-xs font-mono text-[#C4C6D0]">
+                <span>Volume Alvo de Referência:</span>
+                <span id="result-target-litros" class="font-bold text-white">0 L</span>
+            </div>
+
+            <button id="sync-btn" disabled onclick="handleLogSync()"
+                    class="bg-[#A3C9FF] text-[#00315E] font-bold p-4 rounded-xl text-center transition-all opacity-50 cursor-not-allowed tracking-wider">
+                SINCRONIZAR COM LOGBOOK (CLOUD)
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { FuelEngine } from './src/logic/engine.js';
+
+        // Escopo Global Temporário para os botões da UI chamarem
+        window.currentUnit = "KG";
+        
+        // 1. Inicializador de Estado (Smart Default Persistence da Densidade)
+        window.addEventListener('load', () => {
+            const savedSession = localStorage.getItem('kinetic_session');
+            if (!savedSession) {
+                window.location.href = './index.html'; // Proteção de Navegação
+                return;
+            }
+            const session = JSON.parse(savedSession);
+            document.getElementById('inspector-display').innerText = `INSPETOR: ${session.operatorId}`;
+            
+            // Aplica a persistência inteligente da densidade para o turno
+            document.getElementById('density-input').value = localStorage.getItem('last_measured_density') || 0.803;
+            processCalculation();
+        });
+
+        window.setUnit = function(unit) {
+            window.currentUnit = unit;
+            document.getElementById('unit-kg').className = unit === 'KG' ? 'px-4 py-2 rounded-lg bg-[#A3C9FF] text-[#00315E] transition-all cursor-pointer' : 'px-4 py-2 rounded-lg text-[#C4C6D0] transition-all cursor-pointer';
+            document.getElementById('unit-lb').className = unit === 'LB' ? 'px-4 py-2 rounded-lg bg-[#A3C9FF] text-[#00315E] transition-all cursor-pointer' : 'px-4 py-2 rounded-lg text-[#C4C6D0] transition-all cursor-pointer';
+            document.getElementById('result-uplift-unit').innerText = unit;
+            processCalculation();
+        }
+
+        window.processCalculation = function() {
+            const fobCurrent = parseFloat(document.getElementById('fob-current').value) || 0;
+            const fobTarget = parseFloat(document.getElementById('fob-target').value) || 0;
+            const density = parseFloat(document.getElementById('density-input').value) || 0.803;
+            const acftId = document.getElementById('aircraft-selector').value;
+            const ppmv = parseInt(document.getElementById('ppmv-selector').value) || 100;
+            const isRemanentAditivated = document.getElementById('remanent-aditivated-toggle').checked;
+            
+            const warningBox = document.getElementById('ui-warning-box');
+            const warningMsg = document.getElementById('ui-warning-msg');
+            const syncBtn = document.getElementById('sync-btn');
+
+            // Salva a densidade para persistência do turno no localStorage
+            localStorage.setItem('last_measured_density', density);
+
+            try {
+                // Invoca o motor de cálculo industrial
+                const result = FuelEngine.calculateProcedure(fobCurrent, fobTarget, density, acftId, window.currentUnit, ppmv, isRemanentAditivated);
+
+                // Renderiza os dados numéricos estáveis
+                document.getElementById('result-biocide').innerText = result.biocideMl.toLocaleString('pt-BR');
+                document.getElementById('result-uplift').innerText = result.fuelToUplift.toLocaleString('pt-BR');
+                document.getElementById('result-target-litros').innerText = `${Math.round(result.targetVolumeL).toLocaleString('pt-BR')} L`;
+
+                // Aplica a sua regra de UI para alertas preventivos
+                if (!isRemanentAditivated && fobCurrent > 0 && fobTarget > 0) {
+                    warningBox.className = "p-4 rounded-xl text-sm bg-[#2F4563]/20 border border-[#2F4563]/40 text-[#D2E4FF]";
+                    warningMsg.innerText = "Aviso: Remanescente não aditivado. Dosagem calculada com base no volume total na asa para homogeneização.";
+                    warningBox.classList.remove('hidden');
+                } else {
+                    warningBox.classList.add('hidden');
+                }
+
+                // Libera o botão de persistência se houver dados válidos calculados
+                if (fobTarget > 0) {
+                    syncBtn.disabled = false;
+                    syncBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    syncBtn.classList.add('cursor-pointer', 'hover:bg-[#C2DCFF]');
+                    // Guarda o DTO temporariamente para o sincronizador usar
+                    window.lastValidResult = result;
+                }
+
+            } catch (error) {
+                // Intercepta a falha do validador e joga o erro na tela (Fail-Safe UI)
+                warningBox.className = "p-4 rounded-xl text-sm bg-[#3A1414] border border-[#FFDAD7]/20 text-[#FFDAD7]";
+                warningMsg.innerText = error.message.split(': ')[1] || error.message;
+                warningBox.removeProperty ? warningBox.removeProperty('hidden') : warningBox.classList.remove('hidden');
+
+                // Reseta displays por segurança técnica
+                document.getElementById('result-biocide').innerText = "0";
+                document.getElementById('result-uplift').innerText = "0";
+                document.getElementById('result-target-litros').innerText = "0 L";
+                
+                // Tranca o botão de log
+                syncBtn.disabled = true;
+                syncBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                syncBtn.classList.remove('cursor-pointer', 'hover:bg-[#C2DCFF]');
+            }
+        }
+
+        window.handleLogSync = function() {
+            // Próximo estágio do roteiro descendente: Acionamento da Criptografia e Firestore
+            alert(`Cálculo de ${window.lastValidResult.biocideMl}ml validado. Pronto para assinatura digital SHA-256 e gravação imutável.`);
+        }
+    </script>
+</body>
+</html>
