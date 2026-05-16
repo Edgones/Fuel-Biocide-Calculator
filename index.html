@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinetic Hangar - Acesso</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="./manifest.json">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="bg-[#121416] text-[#E3E2E6] min-h-screen flex flex-col justify-center items-center p-4">
+
+    <div class="bg-[#1A1C1E] w-full max-w-md p-8 rounded-3xl shadow-2xl flex flex-col gap-6">
+        
+        <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-3">
+                <span class="text-[#A3C9FF] text-2xl font-bold tracking-wider">KINETIC HANGAR</span>
+                <span class="bg-[#2F4563] text-[#D2E4FF] text-xs font-semibold px-2.5 py-1 rounded-md tracking-widest font-mono">v1.0</span>
+            </div>
+            <p class="text-[#C4C6D0] text-sm">Controle de Aditivação e Combustível de Missão Crítica</p>
+        </div>
+
+        <hr class="border-[#43474E] opacity-30">
+
+        <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
+                <label for="operator-id" class="text-[#E3E2E6] text-xs font-medium uppercase tracking-wider">ID do Inspetor</label>
+                <input type="text" id="operator-id" placeholder="Ex: EMB1093" 
+                       class="bg-[#24262A] text-white p-4 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-[#A3C9FF] tracking-wide placeholder-[#74777F] transition-all">
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="operator-pin" class="text-[#E3E2E6] text-xs font-medium uppercase tracking-wider">PIN de Segurança</label>
+                <input type="password" id="operator-pin" inputmode="numeric" pattern="[0-8]*" maxlength="6" placeholder="••••••" 
+                       class="bg-[#24262A] text-white p-4 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-[#A3C9FF] tracking-widest text-center placeholder-[#74777F] font-mono transition-all">
+            </div>
+
+            <div id="error-box" class="bg-[#3A1414] text-[#FFDAD7] p-4 rounded-xl text-sm hidden">
+                <span id="error-msg">PIN ou ID incorreto.</span>
+            </div>
+
+            <button id="login-btn" onclick="handleAuth()" 
+                    class="bg-[#A3C9FF] text-[#00315E] font-semibold p-4 rounded-xl mt-2 transition-all hover:bg-[#C2DCFF] active:scale-[0.98] cursor-pointer">
+                AUTENTICAR ACESSO
+            </button>
+        </div>
+    </div>
+
+    <div class="mt-6 text-xs text-[#74777F] font-mono tracking-wider flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-[#34C759]"></span> LOCAL MODE HANGAR READY
+    </div>
+
+    <script>
+        function handleAuth() {
+            const idInput = document.getElementById('operator-id').value.trim();
+            const pinInput = document.getElementById('operator-pin').value.trim();
+            const errorBox = document.getElementById('error-box');
+            const errorMsg = document.getElementById('error-msg');
+
+            // Validação de preenchimento simples para o frontend estático
+            if (!idInput || pinInput.length < 4) {
+                errorMsg.innerText = "Por favor, insira um ID válido e o PIN de 4 a 6 dígitos.";
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            // Simulação de sessão local em conformidade com as diretrizes do app
+            const sessionData = {
+                operatorId: idInput.toUpperCase(),
+                loginTime: new Date().toISOString()
+            };
+            
+            // Retém as credenciais temporárias do operador para o AuditLogger usar depois
+            localStorage.setItem('kinetic_session', JSON.stringify(sessionData));
+            
+            // Redireciona para o próximo arquivo na sequência da UI
+            window.location.href = './calculadora.html';
+        }
+
+        // Registro do Service Worker para funcionamento Offline-First
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker ativo na raiz:', reg.scope))
+                    .catch(err => console.error('Erro ao registrar Service Worker:', err));
+            });
+        }
+    </script>
+</body>
+</html>
